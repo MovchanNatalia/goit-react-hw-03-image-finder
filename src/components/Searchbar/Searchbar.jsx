@@ -1,38 +1,62 @@
 import PropTypes from 'prop-types';
 import styles from './Searchbar.module.css';
+import { Component } from 'react';
+import { toast } from 'react-toastify';
 
-function Searchbar({ onHandleSubmit, onSearchQueryChange, value }) {
-  return (
-    <header className={styles.Searchbar}>
-      <form className={styles.SearchForm} onSubmit={onHandleSubmit}>
-        <button type="submit" className={styles.Button}>
-          <span className={styles.label}>Search</span>
-        </button>
+class Searchbar extends Component {
+  state = {
+    query: '',
+  };
 
-        <input
-          className={styles.input}
-          type="text"
-          value={value}
-          autoComplete="off"
-          autoFocus
-          placeholder="Search images and photos"
-          onChange={onSearchQueryChange}
-        />
-      </form>
-    </header>
-  );
+  onHandleSubmit = e => {
+    e.preventDefault();
+    const { query } = this.state;
+    const { onSubmit } = this.props;
+
+    if (!query.trim()) {
+      this.props.value();
+      return toast.info(
+        'The search input can not be empty. Please enter a search query'
+      );
+    }
+
+    onSubmit(query);
+    this.resetInput();
+  };
+
+  resetInput = () => {
+    this.setState({ query: '' });
+  };
+
+  handleInput = e => {
+    this.setState({ query: e.currentTarget.value.trim().toLowerCase() });
+  };
+
+  render() {
+    return (
+      <header className={styles.Searchbar}>
+        <form className={styles.SearchForm} onSubmit={this.onHandleSubmit}>
+          <button type="submit" className={styles.Button}>
+            <span className={styles.label}>Search</span>
+          </button>
+
+          <input
+            className={styles.input}
+            type="text"
+            value={this.state.query}
+            autoComplete="off"
+            autoFocus
+            placeholder="Search images and photos"
+            onChange={this.handleInput}
+          />
+        </form>
+      </header>
+    );
+  }
 }
 
 Searchbar.propTypes = {
-  onHandleSubmit: PropTypes.func.isRequired,
-  onSearchQueryChange: PropTypes.func.isRequired,
-  value: PropTypes.string.isRequired,
-};
-
-Searchbar.propTypes = {
-  onHandleSubmit: PropTypes.func.isRequired,
-  onSearchQueryChange: PropTypes.func.isRequired,
-  value: PropTypes.string.isRequired,
+  onSubmit: PropTypes.func.isRequired,
 };
 
 export default Searchbar;
